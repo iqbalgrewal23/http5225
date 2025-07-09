@@ -1,4 +1,7 @@
 <?php
+include('functions.php');
+ secure();
+
   if(isset($_POST['AddSchool'])){
     //Array ( [BoardName] => Garys School [SchoolName] => Gary public shhcool [AddSchool] => Add School )
     $BoardName = $_POST['BoardName'];
