@@ -24,6 +24,11 @@ include('functions.php');
         <input type="hidden" name="id" value="' . $school['id'] . '">
         <input type="submit" value="EDIT">
       </form>';
+      echo '<form action="delete.php" method="GET" style="display:inline-block; margin-left:5px;" onsubmit="return confirm(\'Are you sure?\');">
+      <input type="hidden" name="id" value="' . $school['id'] . '">
+      <input type="submit" value="DELETE" class="btn btn-danger btn-sm">
+    </form>';
+echo '</div>';
   }
 ?>
 </body>
