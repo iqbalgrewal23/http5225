@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreStudentRequest;
 use App\Http\Requests\UpdateStudentRequest;
 use App\Models\Student;
+use App\Models\Course;
+use Illuminate\Http\Request;
 
 class StudentController extends Controller
 {
@@ -23,17 +25,26 @@ class StudentController extends Controller
      */
     public function create()
     {
-        return view('students.create');
+        $courses = Course::all();
+        return view('students.create', compact('courses'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreStudentRequest $request)
+    public function store(Request $request)
     {
-        //
-        Student::create($request->validated());
-        return redirect()->route('students.index');
+        $request->validate([
+            'fname' => 'required|string|max:255',
+            'lname' => 'required|string|max:255',
+            'email' => 'required|email|unique:students,email',
+            'courses' => 'array', // Validate courses as an array
+        ]);
+
+        $student = Student::create($request->only(['fname', 'lname', 'email']));
+        $student->courses()->sync($request->courses); // Attach selected courses
+
+        return redirect()->route('students.index')->with('success', 'Student created successfully.');
     }
 
     /**
@@ -49,15 +60,27 @@ class StudentController extends Controller
      */
     public function edit(Student $student)
     {
-        return view('students.edit', compact('student'));
+        $courses = Course::all(); // Fetch all available courses
+        $student->load('courses'); // Load the student's associated courses
+        return view('students.edit', compact('student', 'courses'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateStudentRequest $request, Student $student)
+    public function update(Request $request, Student $student)
     {
-        return true;
+        $request->validate([
+            'fname' => 'required|string|max:255',
+            'lname' => 'required|string|max:255',
+            'email' => 'required|email|unique:students,email,' . $student->id,
+            'courses' => 'array', // Validate courses as an array
+        ]);
+
+        $student->update($request->only(['fname', 'lname', 'email']));
+        $student->courses()->sync($request->courses); // Sync the selected courses
+
+        return redirect()->route('students.index')->with('success', 'Student updated successfully.');
     }
 
     /**
